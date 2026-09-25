@@ -1,0 +1,843 @@
+/*
+  Visual direction: a quiet, neutral workspace for repeated daily use.
+  The palette stays intentionally restrained: black for emphasis, dark gray
+  for readable text, white for surfaces, and light gray for page contrast.
+*/
+:root {
+  --black: #000000;
+  --white: #ffffff;
+  --light-gray: #f5f5f5;
+  --dark-gray: #333333;
+  --border-gray: #d9d9d9;
+  --muted-gray: #6b6b6b;
+  --date-plum: #75408c;
+  --date-plum-light: #f1e4f6;
+  --content-width: 1180px;
+  --sidebar-width: 240px;
+  --transition-standard: 220ms ease;
+}
+
+/* Make widths predictable and remove browser spacing differences. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  background: var(--light-gray);
+  color: var(--dark-gray);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+body::before {
+  position: fixed;
+  z-index: 8;
+  inset: 0;
+  visibility: hidden;
+  background: rgb(255 255 255 / 45%);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-standard), visibility var(--transition-standard);
+  backdrop-filter: blur(0);
+}
+
+body.task-modal-open::before {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  backdrop-filter: blur(5px);
+}
+
+/* The sidebar remains visually distinct through contrast rather than color. */
+aside {
+  min-height: 100vh;
+  padding: 2rem 1.5rem;
+  background: var(--black);
+  box-shadow: 0.35rem 0 1.5rem rgb(0 0 0 / 10%);
+  color: var(--white);
+}
+
+aside h1 {
+  margin: 0 0 2.5rem;
+  color: var(--white);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+nav h2 {
+  margin: 1.75rem 0 0.65rem;
+  color: #cfcfcf;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+nav > ul,
+nav ul ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+nav > ul > li + li {
+  margin-top: 0.4rem;
+}
+
+nav ul ul {
+  margin: 0.35rem 0 1rem;
+  padding-left: 0.8rem;
+  border-left: 1px solid #555555;
+}
+
+nav a {
+  display: block;
+  padding: 0.55rem 0.7rem;
+  border-radius: 3px;
+  color: #d9d9d9;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+nav a:hover,
+nav a:focus-visible {
+  background: var(--dark-gray);
+  color: var(--white);
+  outline: none;
+}
+
+/* Main content uses a readable measure and vertical rhythm for scanning. */
+main {
+  width: min(100%, var(--content-width));
+  margin: 0 auto;
+  padding: 3rem clamp(1.25rem, 4vw, 4rem);
+}
+
+main > section,
+#task-editor {
+  margin-bottom: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--border-gray);
+  border-radius: 10px;
+  background: var(--white);
+  box-shadow: 0 0.45rem 1.5rem rgb(0 0 0 / 6%);
+  transition: box-shadow var(--transition-standard), transform var(--transition-standard), border-color var(--transition-standard);
+}
+
+main > section:not(#task-editor):hover {
+  border-color: #c4c4c4;
+  box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 10%);
+  transform: translateY(-2px);
+}
+
+h2,
+h3 {
+  margin-top: 0;
+  color: var(--black);
+  line-height: 1.2;
+}
+
+h2 {
+  margin-bottom: 0.5rem;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+}
+
+h3 {
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+p {
+  margin: 0;
+  color: var(--muted-gray);
+}
+
+.calendar__header {
+  display: flex;
+  align-items: end;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.calendar__navigation {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.calendar__navigation button {
+  width: 2.3rem;
+  min-height: 2.3rem;
+  padding: 0;
+  border-color: var(--border-gray);
+  background: var(--light-gray);
+  color: var(--black);
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background var(--transition-standard), border-color var(--transition-standard), transform var(--transition-standard);
+}
+
+.calendar__navigation button:hover:not(:disabled) {
+  border-color: var(--black);
+  background: var(--white);
+  transform: translateY(-1px);
+}
+
+.calendar__navigation button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.calendar__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 0.4rem;
+}
+
+.calendar__legend-item,
+.calendar__task {
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.calendar__legend-item {
+  padding: 0.2rem 0.5rem;
+}
+
+.calendar__legend-item--high,
+.calendar__task--high {
+  border-color: #f2bcbc;
+  background: #fde2e2;
+  color: #a52828;
+}
+
+.calendar__legend-item--medium,
+.calendar__task--medium {
+  border-color: #ead584;
+  background: #fff3c4;
+  color: #866600;
+}
+
+.calendar__legend-item--low,
+.calendar__task--low {
+  border-color: #a9d8b8;
+  background: #e1f3e7;
+  color: #287044;
+}
+
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  background: var(--border-gray);
+}
+
+.calendar__weekday,
+.calendar__day {
+  min-width: 0;
+  background: var(--white);
+}
+
+.calendar__weekday {
+  padding: 0.65rem 0.5rem;
+  background: var(--light-gray);
+  color: var(--muted-gray);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.calendar__day {
+  min-height: 7.5rem;
+  padding: 0.55rem;
+  border-top: 1px solid var(--border-gray);
+  cursor: pointer;
+  transition: background var(--transition-standard), box-shadow var(--transition-standard);
+}
+
+.calendar__day:hover,
+.calendar__day--today {
+  background: #fcfcfc;
+  box-shadow: inset 0 0 0 2px #e5d7eb;
+}
+
+.calendar__day--outside {
+  background: #fafafa;
+  color: #b4b4b4;
+}
+
+.calendar__day-number {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--dark-gray);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.calendar__day--outside .calendar__day-number {
+  color: #b4b4b4;
+}
+
+.calendar__task-list {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calendar__task {
+  display: block;
+  overflow: hidden;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid;
+  cursor: pointer;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  transition: box-shadow var(--transition-standard), transform var(--transition-standard);
+  white-space: nowrap;
+}
+
+.calendar__task:hover {
+  box-shadow: 0 0.3rem 0.8rem rgb(0 0 0 / 16%);
+  transform: translateY(-1px);
+}
+
+.calendar__task--completed {
+  opacity: 0.75;
+  text-decoration: line-through;
+}
+
+.calendar__task-category {
+  margin-right: 0.2rem;
+}
+
+.calendar__task-time {
+  margin-right: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Statistics become a simple comparison grid instead of decorative cards. */
+#statistics dl {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin: 1.5rem 0 0;
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--border-gray);
+}
+
+#statistics dl div {
+  padding: 1rem;
+  background: var(--white);
+}
+
+#statistics dt {
+  color: var(--muted-gray);
+  font-size: 0.8rem;
+}
+
+#statistics dd {
+  margin: 0.35rem 0 0;
+  color: var(--black);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+/* Search, filter, and sort controls share one consistent field treatment. */
+#task-filters {
+  display: grid;
+  grid-template-columns: minmax(12rem, 2fr) repeat(4, minmax(9rem, 1fr));
+  align-items: end;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+#task-filters label {
+  grid-row: 1;
+  margin-bottom: -0.5rem;
+  color: var(--muted-gray);
+  font-size: 0.75rem;
+}
+
+#task-filters input,
+#task-filters select {
+  grid-row: 2;
+}
+
+#task-filters[hidden] {
+  display: none;
+}
+
+#filter-toggle {
+  display: inline-flex;
+  width: auto;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 1.25rem;
+  padding: 0.55rem 0.85rem;
+  border-color: var(--border-gray);
+  background: var(--light-gray);
+  color: var(--dark-gray);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background var(--transition-standard), border-color var(--transition-standard), transform var(--transition-standard);
+}
+
+#filter-toggle:hover,
+#filter-toggle[aria-expanded="true"] {
+  border-color: var(--black);
+  background: var(--white);
+  transform: translateY(-1px);
+}
+
+label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--dark-gray);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+input,
+select,
+textarea,
+button {
+  width: 100%;
+  min-height: 2.7rem;
+  border: 1px solid var(--border-gray);
+  border-radius: 6px;
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  padding: 0.65rem 0.75rem;
+  background: var(--white);
+  color: var(--dark-gray);
+}
+
+textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+  border-color: var(--black);
+  outline: 2px solid #bdbdbd;
+  outline-offset: 1px;
+}
+
+/* Empty task lists retain structure and explain what will appear later. */
+ul[aria-live] {
+  min-height: 3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+ul[aria-live]:empty::before {
+  display: block;
+  padding: 0.9rem;
+  border: 1px dashed var(--border-gray);
+  color: var(--muted-gray);
+  content: "No tasks to display.";
+  font-size: 0.9rem;
+}
+
+#tasks > section + section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-gray);
+}
+
+#add-task-button,
+#task-form button {
+  width: auto;
+  padding: 0.65rem 1.2rem;
+  border-color: var(--black);
+  background: var(--black);
+  box-shadow: 0 0.35rem 0.8rem rgb(0 0 0 / 15%);
+  color: var(--white);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background var(--transition-standard), box-shadow var(--transition-standard), transform var(--transition-standard);
+}
+
+#add-task-button {
+  display: block;
+  margin: 0 auto 1.5rem;
+}
+
+#add-task-button:hover,
+#task-form button:hover {
+  background: var(--dark-gray);
+  box-shadow: 0 0.55rem 1.1rem rgb(0 0 0 / 20%);
+  transform: translateY(-1px);
+}
+
+#task-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+#task-form > div:nth-child(2) {
+  grid-column: 1 / -1;
+}
+
+#task-form button {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+/* JavaScript opens the editor as a focused card above the dashboard. */
+#task-editor {
+  position: fixed;
+  z-index: 10;
+  top: 50%;
+  left: 50%;
+  width: min(92vw, 680px);
+  max-height: 90vh;
+  margin: 0;
+  overflow-y: auto;
+  border-radius: 12px;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 25%);
+  opacity: 1;
+  transition: opacity var(--transition-standard), transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#task-editor:not([hidden]) {
+  animation: task-editor-enter 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#task-editor.is-closing {
+  opacity: 0;
+  transform: translate(-50%, -46%);
+}
+
+@keyframes task-editor-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+#task-editor[hidden] {
+  display: none;
+}
+
+.task-editor__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.task-editor__header h2 {
+  margin-bottom: 1.25rem;
+}
+
+#close-task-editor {
+  width: 2rem;
+  min-height: 2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted-gray);
+  cursor: pointer;
+  font-size: 1.7rem;
+  line-height: 1;
+  transition: background var(--transition-standard), color var(--transition-standard);
+}
+
+#close-task-editor:hover,
+#close-task-editor:focus-visible {
+  background: var(--light-gray);
+  color: var(--black);
+}
+
+.task-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  align-items: start;
+  padding: 1rem;
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: 0 0.25rem 0.8rem rgb(0 0 0 / 5%);
+  transition: border-color var(--transition-standard), box-shadow var(--transition-standard), transform var(--transition-standard);
+}
+
+.task-card:hover {
+  border-color: #bdbdbd;
+  box-shadow: 0 0.5rem 1.2rem rgb(0 0 0 / 9%);
+  transform: translateY(-1px);
+}
+
+.task-card + .task-card {
+  margin-top: 0.65rem;
+}
+
+.task-card__toggle {
+  width: 1.5rem;
+  min-height: 1.5rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--black);
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.task-card__title {
+  margin: 0;
+  color: var(--black);
+  font-size: 1rem;
+}
+
+.task-card__description,
+.task-card__meta {
+  margin: 0.25rem 0 0;
+  color: var(--muted-gray);
+  font-size: 0.85rem;
+}
+
+.task-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.task-card__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.task-card__category {
+  color: var(--dark-gray);
+  background: var(--light-gray);
+}
+
+.task-card__due-date {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--date-plum-light);
+  color: var(--date-plum);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.task-card__due-time {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #e5f0fb;
+  color: #2866a5;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.task-card__priority--high {
+  color: #a52828;
+  background: #fde2e2;
+}
+
+.task-card__priority--medium {
+  color: #866600;
+  background: #fff3c4;
+}
+
+.task-card__priority--low {
+  color: #287044;
+  background: #e1f3e7;
+}
+
+.task-card__actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.task-card__actions button {
+  width: auto;
+  min-height: 2rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--white);
+  color: var(--dark-gray);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.task-card__actions button:hover {
+  border-color: var(--black);
+  color: var(--black);
+}
+
+.task-card--completed .task-card__title,
+.task-card--completed .task-card__description {
+  color: var(--muted-gray);
+  text-decoration: line-through;
+}
+
+@media (max-width: 520px) {
+  .calendar__header {
+    display: block;
+  }
+
+  .calendar__navigation {
+    margin: 0.75rem 0;
+  }
+
+  .calendar__legend {
+    justify-content: start;
+    margin-top: 0.75rem;
+  }
+
+  .calendar__grid {
+    overflow-x: auto;
+    grid-template-columns: repeat(7, minmax(7rem, 1fr));
+  }
+
+  .calendar__day {
+    min-height: 6.5rem;
+  }
+
+  #task-editor {
+    width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+  }
+
+  .task-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .task-card__actions {
+    grid-column: 2;
+  }
+}
+
+/* On smaller screens, the sidebar becomes a compact horizontal navigation. */
+@media (max-width: 800px) {
+  body {
+    display: block;
+  }
+
+  aside {
+    min-height: auto;
+    padding: 1.25rem;
+  }
+
+  aside h1 {
+    margin-bottom: 1rem;
+  }
+
+  nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  nav h2 {
+    margin-top: 0;
+  }
+
+  nav > ul > li + li {
+    margin-top: 0;
+  }
+
+  main {
+    padding: 1.5rem 1rem;
+  }
+
+  #task-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #task-filters label,
+  #task-filters input,
+  #task-filters select {
+    grid-column: 1 / -1;
+  }
+
+  #task-filters label {
+    grid-row: auto;
+    margin-bottom: -0.5rem;
+  }
+
+  #task-filters input,
+  #task-filters select {
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  nav {
+    display: block;
+  }
+
+  nav > ul > li + li {
+    margin-top: 0.75rem;
+  }
+
+  #statistics dl,
+  #task-form {
+    grid-template-columns: 1fr;
+  }
+
+  #statistics dl div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  #task-form > div:nth-child(2),
+  #task-form button {
+    grid-column: auto;
+  }
+
+  #add-task-button,
+  #task-form button {
+    width: 100%;
+  }
+}

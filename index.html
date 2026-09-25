@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productivity Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <aside id="sidebar" aria-label="Sidebar">
+    <h1>Productivity</h1>
+
+    <nav aria-label="Main navigation">
+      <h2>Dashboard</h2>
+      <ul>
+        <li><a href="#dashboard">Dashboard</a></li>
+        <li><a href="#calendar">Calendar</a></li>
+        <li>
+          <a href="#tasks">Tasks</a>
+          <ul>
+            <li><a href="#all-tasks">All Tasks</a></li>
+            <li><a href="#today">Today</a></li>
+            <li><a href="#upcoming">Upcoming</a></li>
+            <li><a href="#completed">Completed</a></li>
+          </ul>
+        </li>
+        <li>
+          <h2>Projects</h2>
+          <ul>
+            <li><a href="#school">📚 School</a></li>
+            <li><a href="#personal">🏠 Personal</a></li>
+            <li><a href="#work">💼 Work</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main>
+    <section id="dashboard" aria-labelledby="dashboard-heading">
+      <h2 id="dashboard-heading">Dashboard</h2>
+      <p>Overview of your tasks and activity.</p>
+    </section>
+
+    <section id="statistics" aria-labelledby="statistics-heading">
+      <h2 id="statistics-heading">Task Statistics</h2>
+
+      <dl>
+        <div>
+          <dt>Total tasks</dt>
+          <dd id="total-task-count">0</dd>
+        </div>
+        <div>
+          <dt>Completed tasks</dt>
+          <dd id="completed-task-count">0</dd>
+        </div>
+        <div>
+          <dt>Incomplete tasks</dt>
+          <dd id="incomplete-task-count">0</dd>
+        </div>
+        <div>
+          <dt>Due today</dt>
+          <dd id="due-today-task-count">0</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section id="calendar" aria-labelledby="calendar-heading">
+      <div class="calendar__header">
+        <div>
+          <h2 id="calendar-heading">Calendar</h2>
+          <p id="calendar-month"></p>
+        </div>
+        <div class="calendar__navigation" aria-label="Calendar navigation">
+          <button type="button" id="previous-month" aria-label="Previous month">←</button>
+          <button type="button" id="next-month" aria-label="Next month">→</button>
+        </div>
+        <p class="calendar__legend" aria-label="Priority colors">
+          <span class="calendar__legend-item calendar__legend-item--high">High</span>
+          <span class="calendar__legend-item calendar__legend-item--medium">Medium</span>
+          <span class="calendar__legend-item calendar__legend-item--low">Low</span>
+        </p>
+      </div>
+      <div id="calendar-grid" class="calendar__grid" role="grid" aria-label="Current month calendar">
+        <!-- Calendar days and task entries will be rendered here. -->
+      </div>
+    </section>
+
+    <section id="tasks" aria-labelledby="tasks-heading">
+      <h2 id="tasks-heading">Tasks</h2>
+
+      <button type="button" id="filter-toggle" aria-controls="task-filters" aria-expanded="false">
+        <span aria-hidden="true">☷</span>
+        <span>Filters</span>
+      </button>
+
+      <form id="task-filters" role="search" hidden>
+        <label for="task-search">Search tasks</label>
+        <input type="search" id="task-search" name="search" placeholder="Search tasks">
+
+        <label for="task-status-filter">Filter by status</label>
+        <select id="task-status-filter" name="status">
+          <option value="all">All tasks</option>
+          <option value="active">Incomplete</option>
+          <option value="completed">Completed</option>
+        </select>
+
+        <label for="task-priority-filter">Filter by priority</label>
+        <select id="task-priority-filter" name="priority">
+          <option value="all">All priorities</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+
+        <label for="task-category-filter">Filter by category</label>
+        <select id="task-category-filter" name="category">
+          <option value="all">All categories</option>
+          <option value="school">School</option>
+          <option value="personal">Personal</option>
+          <option value="work">Work</option>
+        </select>
+
+        <label for="task-sort">Sort tasks by</label>
+        <select id="task-sort" name="sort">
+          <option value="due-date">Due date</option>
+          <option value="created-at">Created date</option>
+          <option value="priority">Priority</option>
+          <option value="title">Title</option>
+        </select>
+      </form>
+
+      <section id="all-tasks" aria-labelledby="all-tasks-heading">
+        <h3 id="all-tasks-heading">All Tasks</h3>
+        <ul id="task-list" aria-live="polite">
+          <!-- All task items will be rendered here. -->
+        </ul>
+      </section>
+
+      <section id="today" aria-labelledby="today-heading">
+        <h3 id="today-heading">Today's Tasks</h3>
+        <ul id="today-task-list" aria-live="polite">
+          <!-- Today's task items will be rendered here. -->
+        </ul>
+      </section>
+
+      <section id="upcoming" aria-labelledby="upcoming-heading">
+        <h3 id="upcoming-heading">Upcoming Tasks</h3>
+        <ul id="upcoming-task-list" aria-live="polite">
+          <!-- Upcoming task items will be rendered here. -->
+        </ul>
+      </section>
+
+      <section id="completed" aria-labelledby="completed-heading">
+        <h3 id="completed-heading">Completed Tasks</h3>
+        <ul id="completed-task-list" aria-live="polite">
+          <!-- Completed task items will be rendered here. -->
+        </ul>
+      </section>
+    </section>
+
+    <button type="button" id="add-task-button">Add Task</button>
+
+    <section id="task-editor" aria-labelledby="task-editor-heading">
+      <div class="task-editor__header">
+        <h2 id="task-editor-heading">Add or Edit Task</h2>
+        <button type="button" id="close-task-editor" aria-label="Close task form">×</button>
+      </div>
+
+      <form id="task-form">
+        <input type="hidden" id="task-id" name="id">
+
+        <div>
+          <label for="task-title">Title</label>
+          <input type="text" id="task-title" name="title" required>
+        </div>
+
+        <div>
+          <label for="task-description">Description</label>
+          <textarea id="task-description" name="description" rows="4"></textarea>
+        </div>
+
+        <div>
+          <label for="task-due-date">Due Date</label>
+          <input type="date" id="task-due-date" name="dueDate">
+        </div>
+
+        <div>
+          <label for="task-due-time">Due Time</label>
+          <input type="time" id="task-due-time" name="dueTime">
+        </div>
+
+        <div>
+          <label for="task-priority">Priority</label>
+          <select id="task-priority" name="priority" required>
+            <option value="">Select priority</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="task-category">Category</label>
+          <select id="task-category" name="category" required>
+            <option value="">Select category</option>
+            <option value="school">School</option>
+            <option value="personal">Personal</option>
+            <option value="work">Work</option>
+          </select>
+        </div>
+
+        <button type="submit">Save Task</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
